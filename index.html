@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Syntax Schedule">
+  <meta name="theme-color" content="#4f46e5">
+  <title>Syntax Schedule</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Syntax Schedule</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="dashboard">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-view="tasks">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          <span>All Tasks</span>
+          <span class="nav-badge" id="nav-task-count">0</span>
+        </button>
+        <button class="nav-item" data-view="add">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>New Task</span>
+        </button>
+        <button class="nav-item" data-view="calendar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Calendar</span>
+        </button>
+        <button class="nav-item" data-view="history">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+          <span>History</span>
+        </button>
+        <button class="nav-item" data-view="settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <span>Settings</span>
+        </button>
+      </nav>
+      
+      <div class="sidebar-footer electron-only">
+        <div class="tray-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span>Minimizes to tray</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Dashboard View -->
+      <div id="view-dashboard" class="view">
+        <header class="page-header">
+          <h1>Dashboard</h1>
+          <p class="page-subtitle">Overview of your schedule</p>
+        </header>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-total">0</span>
+              <span class="stat-label">Total Tasks</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-pending">0</span>
+              <span class="stat-label">Pending</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-completed">0</span>
+              <span class="stat-label">Completed</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-high">0</span>
+              <span class="stat-label">High Priority</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-sections">
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>Upcoming Tasks</h3>
+              <button class="btn-text" data-nav="tasks">View All</button>
+            </div>
+            <div id="dashboard-upcoming" class="dashboard-list">
+              <div class="empty-state">No upcoming tasks</div>
+            </div>
+          </div>
+          
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>Quick Add</h3>
+            </div>
+            <form id="quick-add-form" class="quick-add-form">
+              <input type="text" id="quick-title" placeholder="What needs to be done?" required>
+              <div class="quick-add-row">
+                <input type="datetime-local" id="quick-due" required>
+                <select id="quick-priority">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                </select>
+                <button type="submit" class="btn-primary">Add</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Tasks View -->
+      <div id="view-tasks" class="view hidden">
+        <header class="page-header">
+          <h1>All Tasks</h1>
+          <p class="page-subtitle">Manage your tasks</p>
+          <div class="header-actions-row">
+            <div class="search-bar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="task-search" placeholder="Search tasks...">
+            </div>
+            <div class="filter-tabs">
+              <button class="filter-tab active" data-filter="all">All</button>
+              <button class="filter-tab" data-filter="pending">Pending</button>
+              <button class="filter-tab" data-filter="completed">Completed</button>
+              <button class="filter-tab" data-filter="focus" id="btn-focus" title="Focus Mode: show only urgent tasks">Focus</button>
+            </div>
+          </div>
+        </header>
+        
+        <div id="tasks-container" class="tasks-container">
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            <p>No tasks found</p>
+            <button class="btn-secondary" data-nav="add">Create your first task</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar View -->
+      <div id="view-calendar" class="view hidden">
+        <header class="page-header">
+          <h1>Calendar</h1>
+          <p class="page-subtitle">All your tasks at a glance</p>
+          <div class="header-actions-row">
+            <div class="calendar-nav">
+              <button class="btn-icon" id="cal-prev" title="Previous month">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <h2 id="cal-month-year">Month Year</h2>
+              <button class="btn-icon" id="cal-next" title="Next month">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            <button class="btn-secondary" id="cal-today">Today</button>
+          </div>
+        </header>
+
+        <div class="calendar-wrapper">
+          <div class="calendar-grid" id="calendar-grid">
+            <!-- Calendar header (days of week) -->
+            <div class="cal-day-header">Sun</div>
+            <div class="cal-day-header">Mon</div>
+            <div class="cal-day-header">Tue</div>
+            <div class="cal-day-header">Wed</div>
+            <div class="cal-day-header">Thu</div>
+            <div class="cal-day-header">Fri</div>
+            <div class="cal-day-header">Sat</div>
+            <!-- Calendar days generated by JS -->
+          </div>
+        </div>
+
+        <div class="calendar-legend">
+          <span class="legend-item"><span class="legend-dot" style="background: var(--danger)"></span> High</span>
+          <span class="legend-item"><span class="legend-dot" style="background: var(--warning)"></span> Medium</span>
+          <span class="legend-item"><span class="legend-dot" style="background: var(--success)"></span> Low</span>
+          <span class="legend-item"><span class="legend-dot" style="background: var(--accent)"></span> Completed</span>
+        </div>
+
+        <div id="calendar-day-tasks" class="calendar-day-tasks">
+          <div class="empty-state">Select a day to see tasks</div>
+        </div>
+      </div>
+
+      <!-- Add Task View -->
+      <div id="view-add" class="view hidden">
+        <header class="page-header">
+          <h1>New Task</h1>
+          <p class="page-subtitle">Add a new task to your schedule</p>
+        </header>
+        
+        <div class="form-container">
+          <form id="add-task-form" class="task-form">
+            <div class="form-group">
+              <label for="task-title">Task Title *</label>
+              <input type="text" id="task-title" placeholder="e.g., Submit project report" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="task-desc">Description</label>
+              <textarea id="task-desc" placeholder="Add details about this task..."></textarea>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="task-category">Category</label>
+                <select id="task-category">
+                  <option value="General" selected>General</option>
+                  <option value="Work">Work</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Health">Health</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Birthday">Birthday</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Study">Study</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="task-priority">Priority</label>
+                <select id="task-priority">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="task-due">Due Date *</label>
+                <input type="datetime-local" id="task-due" required>
+              </div>
+              <div class="form-group">
+                <label for="task-notify">Notify Me At *</label>
+                <input type="datetime-local" id="task-notify" required>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="task-early">Early Warning</label>
+                <select id="task-early">
+                  <option value="none">At due time only</option>
+                  <option value="15-min">15 minutes before</option>
+                  <option value="1-hour">1 hour before</option>
+                  <option value="1-day">1 day before</option>
+                  <option value="1-week">1 week before</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="task-recurring">Repeat</label>
+                <select id="task-recurring">
+                  <option value="none" selected>Don't repeat</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" data-nav="dashboard">Cancel</button>
+              <button type="submit" class="btn-primary">Create Task</button>
+            </div>
+          </form>
+          
+          <!-- Templates -->
+          <div class="templates-section">
+            <div class="templates-header">
+              <h3>Templates</h3>
+              <button class="btn-text" id="btn-save-template">Save Current as Template</button>
+            </div>
+            <div id="templates-list" class="templates-list">
+              <div class="empty-state small">No templates saved yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- History View -->
+      <div id="view-history" class="view hidden">
+        <header class="page-header">
+          <h1>Notification History</h1>
+          <p class="page-subtitle">Log of all sent notifications</p>
+          <button class="btn-secondary" id="btn-clear-history">Clear History</button>
+        </header>
+        
+        <div id="history-container" class="history-container">
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            <p>No notifications sent yet</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings View -->
+      <div id="view-settings" class="view hidden">
+        <header class="page-header">
+          <h1>Settings</h1>
+          <p class="page-subtitle">Customize your experience</p>
+        </header>
+        
+        <div class="settings-container">
+          <div class="settings-card">
+            <h3>Appearance</h3>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Theme</span>
+                <span class="setting-desc">Choose your preferred color scheme</span>
+              </div>
+              <select id="setting-theme" class="setting-control">
+                <option value="system">System Default</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Accent Color</span>
+                <span class="setting-desc">Pick a custom accent color</span>
+              </div>
+              <input type="color" id="setting-accent" class="setting-control color-picker" value="#4f46e5">
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Font Size</span>
+                <span class="setting-desc">Adjust the text size</span>
+              </div>
+              <div class="setting-control range-wrap">
+                <input type="range" id="setting-fontsize" min="12" max="22" value="15">
+                <span id="font-size-display">15px</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="settings-card">
+            <h3>Notifications</h3>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Auto-Notify</span>
+                <span class="setting-desc">Automatically send notifications when tasks are due</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="setting-auto-notify" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Notification Sound</span>
+                <span class="setting-desc">Play a sound with notifications</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="setting-sound" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Default Early Warning</span>
+                <span class="setting-desc">Default early reminder for new tasks</span>
+              </div>
+              <select id="setting-early" class="setting-control">
+                <option value="none">At due time only</option>
+                <option value="15-min">15 minutes before</option>
+                <option value="1-hour">1 hour before</option>
+                <option value="1-day">1 day before</option>
+                <option value="1-week">1 week before</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Quiet Hours</span>
+                <span class="setting-desc">Do not notify between these times</span>
+              </div>
+              <div class="setting-control time-range">
+                <input type="time" id="setting-quiet-start" value="23:00">
+                <span>to</span>
+                <input type="time" id="setting-quiet-end" value="07:00">
+                <label class="toggle" style="margin-left: 8px;">
+                  <input type="checkbox" id="setting-quiet-enabled">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Test Sound</span>
+                <span class="setting-desc">Preview the notification sound</span>
+              </div>
+              <button class="btn-secondary" id="btn-test-sound">Play Sound</button>
+            </div>
+          </div>
+          
+          <div class="settings-card">
+            <h3>System</h3>
+            <div class="setting-row electron-only">
+              <div class="setting-info">
+                <span class="setting-name">Start on Boot</span>
+                <span class="setting-desc">Launch Syntax Schedule when Windows starts</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="setting-autostart">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Fullscreen</span>
+                <span class="setting-desc">Toggle fullscreen mode</span>
+              </div>
+              <button class="btn-secondary" id="btn-toggle-fullscreen">Toggle</button>
+            </div>
+          </div>
+          
+          <div class="settings-card">
+            <h3>Data</h3>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Export Tasks</span>
+                <span class="setting-desc">Save all tasks to a JSON backup file</span>
+              </div>
+              <button class="btn-secondary" id="btn-export">Export</button>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-name">Import Tasks</span>
+                <span class="setting-desc">Restore tasks from a JSON backup file</span>
+              </div>
+              <button class="btn-secondary" id="btn-import">Import</button>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn-primary" id="btn-save-settings">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Edit Task Modal -->
+  <div id="edit-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Task</h2>
+        <button class="btn-icon" id="edit-modal-close">&times;</button>
+      </div>
+      <form id="edit-task-form" class="task-form">
+        <input type="hidden" id="edit-id">
+        <div class="form-group">
+          <label for="edit-title">Task Title *</label>
+          <input type="text" id="edit-title" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-desc">Description</label>
+          <textarea id="edit-desc"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-category">Category</label>
+            <select id="edit-category">
+              <option value="General">General</option>
+              <option value="Work">Work</option>
+              <option value="Personal">Personal</option>
+              <option value="Health">Health</option>
+              <option value="Finance">Finance</option>
+              <option value="Birthday">Birthday</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Study">Study</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-priority">Priority</label>
+            <select id="edit-priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-due">Due Date *</label>
+            <input type="datetime-local" id="edit-due" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-notify">Notify Me At *</label>
+            <input type="datetime-local" id="edit-notify" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-early">Early Warning</label>
+            <select id="edit-early">
+              <option value="none">At due time only</option>
+              <option value="15-min">15 minutes before</option>
+              <option value="1-hour">1 hour before</option>
+              <option value="1-day">1 day before</option>
+              <option value="1-week">1 week before</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-recurring">Repeat</label>
+            <select id="edit-recurring">
+              <option value="none">Don't repeat</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" id="edit-modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Hint -->
+  <div id="shortcuts-hint" class="shortcuts-hint">
+    <h4>Keyboard Shortcuts</h4>
+    <div><span>New Task</span><kbd>Ctrl</kbd><kbd>N</kbd></div>
+    <div><span>Search</span><kbd>Ctrl</kbd><kbd>F</kbd></div>
+    <div><span>Complete</span><kbd>Ctrl</kbd><kbd>D</kbd></div>
+    <div><span>Delete</span><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>D</kbd></div>
+    <div><span>Focus Mode</span><kbd>Ctrl</kbd><kbd>1</kbd></div>
+    <div><span>All Tasks</span><kbd>Ctrl</kbd><kbd>2</kbd></div>
+    <div><span>Calendar</span><kbd>Ctrl</kbd><kbd>3</kbd></div>
+    <div><span>Settings</span><kbd>Ctrl</kbd><kbd>,</kbd></div>
+    <div><span>Shortcuts</span><kbd>?</kbd></div>
+    <div><span>Close/Escape</span><kbd>Esc</kbd></div>
+  </div>
+
+  <input type="file" id="web-import-input" accept=".json" style="display:none">
+  <script src="script.js"></script>
+</body>
+</html>

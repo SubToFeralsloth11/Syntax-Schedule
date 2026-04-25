@@ -1,0 +1,9 @@
+{
+  "theme": "system",
+  "accentColor": "#a84ce6",
+  "fontSize": 16,
+  "autoNotify": true,
+  "notificationSound": true,
+  "autoStart": false,
+  "defaultEarlyWarning": "none"
+}
